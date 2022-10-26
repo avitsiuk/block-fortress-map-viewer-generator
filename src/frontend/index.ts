@@ -1,20 +1,31 @@
-import World from '../common/world';
+import GameApp from './gameApp';
 
-const canvasElemId = 'myCanvas';
+const canvasElemId = 'gameCanvas';
+const runBtnElemId = 'runBtn';
+const haltBtnElemId = 'haltBtn';
+const ctrlTglBtnElemId = 'ctrlTglBtn';
+const dbgTglBtnElemId = 'dbgTglBtn';
 
-const main = function() {
-    if (!document.getElementById(canvasElemId)) {
-        throw new Error(`Canvas element "${canvasElemId}" not found.`);
-    }
-    const canvas = (document.getElementById(canvasElemId) as HTMLCanvasElement);
-    if (!canvas.getContext) throw new Error('Looks like your browser does not support canvas.');
-    const context = canvas.getContext('2d')!;
-    const { width: canvasWidth, height: canvasHeight } = canvas.getBoundingClientRect();
-    console.log(canvasWidth, canvasHeight);
-    // const w = new World(1, 1);
-    // console.log(w);
-    // console.log(w.stringifyField(true));
-};
+async function main() {
+    const g = new GameApp(canvasElemId, 400, 400)
+        .setWorldSize(128, 128)
+        .randomizeWorld()
+        .setCellRenderSize(2, 2)
+        .showDebug()
+        .showCtrl(120);
+    document.getElementById(runBtnElemId)?.addEventListener('click', () => {
+        g.run();
+    });
+    document.getElementById(haltBtnElemId)?.addEventListener('click', () => {
+        g.halt();
+    });
+    document.getElementById(ctrlTglBtnElemId)?.addEventListener('click', () => {
+        g.toggleCtrl();
+    });
+    document.getElementById(dbgTglBtnElemId)?.addEventListener('click', () => {
+        g.toggleDebug();
+    });
+}
 
 main();
 
