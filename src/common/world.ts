@@ -17,6 +17,14 @@ export class World {
 
     private cellHeightPx: number = 10;
 
+    private panX: number = 0;
+
+    private panY: number = 0;
+
+    private noiseRes: number = 100;
+
+    seed: number = 0;
+
     constructor(
         fieldCols: number,
         fieldRows: number,
@@ -25,6 +33,42 @@ export class World {
         this.fieldRows = fieldRows;
         this._field = [];
         this.initField();
+    }
+
+    incNoiseRes(amount: number = 1) {
+        this.noiseRes += amount;
+    }
+
+    decNoiseRes(amount: number = 1) {
+        this.noiseRes -= amount;
+    }
+
+    setNoiseRes(amount: number) {
+        this.noiseRes = amount;
+    }
+
+    incPanX(amount: number = 1) {
+        this.panX += amount;
+    }
+
+    decPanX(amount: number = 1) {
+        this.panX -= amount;
+    }
+
+    setPanX(amount: number) {
+        this.panX = amount;
+    }
+
+    incPanY(amount: number = 1) {
+        this.panY += amount;
+    }
+
+    decPanY(amount: number = 1) {
+        this.panY -= amount;
+    }
+
+    setPanY(amount: number) {
+        this.panY = amount;
     }
 
     incCellWidth(amount: number = 1) {
@@ -66,6 +110,10 @@ export class World {
             .fill(new Cell(type));
     }
 
+    randSeed() {
+        this.seed = Math.random();
+    }
+
     resizeField(newCols: number, newRows: number): this {
         this.fieldCols = newCols;
         this.fieldRows = newRows;
@@ -89,9 +137,11 @@ export class World {
 
     generateNoise(
         seed: any,
+        saveSeed: boolean = true,
         cols: number = this.fieldCols,
         rows: number = this.fieldRows,
     ) {
+        if (saveSeed) this.seed = seed;
         const prng = alea(seed);
         const noise2D = createNoise2D(prng);
         this._field = [];
@@ -102,7 +152,10 @@ export class World {
         for (let i = 0; i < len; i += 1) {
             const currCol = i % cols;
             const currRow = Math.floor(Math.max(i / cols, 0));
-            const height = noise2D(currCol, currRow) + 1;
+            const height = noise2D(
+                (currCol / this.noiseRes) + (this.panX / this.noiseRes),
+                (currRow / this.noiseRes) + (this.panY / this.noiseRes),
+            ) + 1;
             this._field.push(
                 new Cell(
                     ((height / 2) * Cell.maxHeight),
@@ -138,6 +191,7 @@ export class World {
     }
 
     render(ctx: CanvasRenderingContext2D, xOffset: number = 0, yOffset: number = 0) {
+        this.generateNoise(this.seed, false);
         for (let row = 0; row < this.fieldRows; row += 1) {
             const cellCenterY = Math.floor(
                 (this.cellHeightPx / 2) + (this.cellHeightPx * row),

@@ -1,7 +1,8 @@
 import { IPosition, IServiceGameData } from '../common/utils';
 import World from '../common/world';
 
-type TControlIdentifier = 'resetPosition' | 'scrollUp' | 'scrollDown' | 'scrollLeft' | 'scrollRight' | 'zoomIn' | 'zoomOut';
+type TControlIdentifier = 'resetPosition' | 'scrollUp' | 'scrollDown' | 'scrollLeft' | 'scrollRight' | 'zoomIn' | 'zoomOut'
+| 'panX+' | 'panX-' | 'panY+' | 'panY-' | 'noiseRes+' | 'noiseRes-' | 'randSeed';
 
 type TControlsMap = {
     [key in TControlIdentifier]: {
@@ -27,7 +28,7 @@ export class GameApp {
 
     private yOffset: number = 0;
 
-    private offsetStep: number = 10;
+    private offsetStep: number = 2;
 
     private debugInfoPos: IPosition = { x: 0, y: 0 };
 
@@ -41,6 +42,13 @@ export class GameApp {
         scrollLeft: { isOn: false, keys: ['a', 'A'] },
         scrollDown: { isOn: false, keys: ['s', 'S'] },
         scrollRight: { isOn: false, keys: ['d', 'D'] },
+        'panX+': { isOn: false, keys: ['ArrowRight'] },
+        'panX-': { isOn: false, keys: ['ArrowLeft'] },
+        'panY+': { isOn: false, keys: ['ArrowDown'] },
+        'panY-': { isOn: false, keys: ['ArrowUp'] },
+        'noiseRes+': { isOn: false, keys: ['x', 'X'] },
+        'noiseRes-': { isOn: false, keys: ['z', 'Z'] },
+        randSeed: { isOn: false, keys: ['r', 'R'] },
     };
 
     private ctlList: TControlIdentifier[] = Object.keys(this.ctrl) as TControlIdentifier[];
@@ -204,18 +212,42 @@ export class GameApp {
             this.xOffset -= this.offsetStep;
         }
         if (this.ctrl.zoomIn.isOn) {
-            this._world.incCellWidth();
-            this._world.incCellHeight();
+            this._world.incCellWidth(0.5);
+            this._world.incCellHeight(0.5);
         }
         if (this.ctrl.zoomOut.isOn) {
-            this._world.decCellWidth();
-            this._world.decCellHeight();
+            this._world.decCellWidth(0.5);
+            this._world.decCellHeight(0.5);
         }
         if (this.ctrl.resetPosition.isOn) {
             this._world.setCellWidth(10);
             this._world.setCellHeight(10);
             this.xOffset = 0;
             this.yOffset = 0;
+            this._world.setPanX(0);
+            this._world.setPanY(0);
+            this._world.setNoiseRes(100);
+        }
+        if (this.ctrl['panX+'].isOn) {
+            this._world.incPanX();
+        }
+        if (this.ctrl['panX-'].isOn) {
+            this._world.decPanX();
+        }
+        if (this.ctrl['panY+'].isOn) {
+            this._world.incPanY();
+        }
+        if (this.ctrl['panY-'].isOn) {
+            this._world.decPanY();
+        }
+        if (this.ctrl['noiseRes+'].isOn) {
+            this._world.incNoiseRes();
+        }
+        if (this.ctrl['noiseRes-'].isOn) {
+            this._world.decNoiseRes();
+        }
+        if (this.ctrl.randSeed.isOn) {
+            this._world.randSeed();
         }
     }
 

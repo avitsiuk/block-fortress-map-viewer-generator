@@ -3,10 +3,38 @@ import { IPosition } from './utils';
 const fillStyles = [
     'black', // empty
     'blue', // water
+    'blue',
+    'blue',
+    'blue',
+    'blue',
+    'blue',
+    'blue',
+    'blue',
+    'blue',
+    'blue',
     'yellow', // sand
+    'yellow',
+    'yellow',
+    'green',
+    'green',
     'green', // grass
+    'green',
+    'green',
+    'green',
+    'green',
+    'green',
+    'green',
+    'green',
+    'green',
+    'green',
     'gray', // rocks
+    'gray',
+    'gray',
+    'gray',
+    'gray',
     'white', // snow
+    'white',
+    'white',
 ];
 
 const MAX_CELL_HEIGHT = fillStyles.length;
