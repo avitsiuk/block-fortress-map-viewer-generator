@@ -1,3 +1,5 @@
+import { createNoise2D } from 'simplex-noise';
+import alea from 'alea';
 import Cell from './cell';
 // import {
 //     IServiceGameData,
@@ -82,6 +84,30 @@ export class World {
         const len = cols * rows;
         for (let i = 0; i < len; i += 1) {
             this._field.push(new Cell(Cell.maxHeight * Math.random()));
+        }
+    }
+
+    generateNoise(
+        seed: any,
+        cols: number = this.fieldCols,
+        rows: number = this.fieldRows,
+    ) {
+        const prng = alea(seed);
+        const noise2D = createNoise2D(prng);
+        this._field = [];
+        if (!cols || !rows) {
+            return;
+        }
+        const len = cols * rows;
+        for (let i = 0; i < len; i += 1) {
+            const currCol = i % cols;
+            const currRow = Math.floor(Math.max(i / cols, 0));
+            const height = noise2D(currCol, currRow) + 1;
+            this._field.push(
+                new Cell(
+                    ((height / 2) * Cell.maxHeight),
+                ),
+            );
         }
     }
 

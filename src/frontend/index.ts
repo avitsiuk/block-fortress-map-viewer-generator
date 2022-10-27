@@ -9,7 +9,7 @@ const dbgTglBtnElemId = 'dbgTglBtn';
 async function main() {
     const g = new GameApp(canvasElemId, 400, 400)
         .setWorldSize(128, 128)
-        .randomizeWorld()
+        .generateWorld()
         .setCellRenderSize(2, 2)
         .showDebug()
         .showCtrl(120);

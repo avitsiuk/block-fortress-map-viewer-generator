@@ -38,8 +38,10 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "alea": "^1.0.1",
     "moleculer": "^0.14.16",
-    "moleculer-web": "^0.10.2"
+    "moleculer-web": "^0.10.2",
+    "simplex-noise": "^4.0.1"
   },
   "engines": {
     "node": ">= 12.x.x"

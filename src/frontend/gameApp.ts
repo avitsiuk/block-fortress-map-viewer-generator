@@ -98,6 +98,11 @@ export class GameApp {
         return this;
     }
 
+    generateWorld(seed: any) {
+        this.world.generateNoise(seed);
+        return this;
+    }
+
     setCellRenderSize(cellWidthPx: number, cellHeightPx: number) {
         this.world.setCellRenderSize(cellWidthPx, cellHeightPx);
         return this;
