@@ -101,6 +101,16 @@ export class World {
         return this;
     }
 
+    drawBox(ctx: CanvasRenderingContext2D, xOffset: number = 0, yOffset: number = 0) {
+        ctx.strokeStyle = 'black';
+        ctx.strokeRect(
+            xOffset,
+            yOffset,
+            this.fieldCols * this.cellWidthPx,
+            this.fieldRows * this.cellHeightPx,
+        );
+    }
+
     render(ctx: CanvasRenderingContext2D, xOffset: number = 0, yOffset: number = 0) {
         for (let row = 0; row < this.fieldRows; row += 1) {
             const cellCenterY = Math.floor(
@@ -118,6 +128,7 @@ export class World {
                 );
             }
         }
+        this.drawBox(ctx, xOffset, yOffset);
     }
 
     stringifyField(printBox: boolean = false): string {
