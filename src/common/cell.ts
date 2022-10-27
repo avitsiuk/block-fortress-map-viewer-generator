@@ -32,7 +32,6 @@ export class WorldCell {
         cellWidthPx: number,
         cellHeightPx: number,
     ) {
-        // console.log(center);
         ctx.fillStyle = fillStyles[Math.ceil(this._height)];
         ctx.fillRect(
             center.x - Math.floor(cellWidthPx / 2),

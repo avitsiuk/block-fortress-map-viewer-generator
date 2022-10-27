@@ -216,7 +216,7 @@ export class GameApp {
 
     run() {
         let pTimestamp = 0;
-        console.log(this.world); // eslint-disable-line
+        console.log(this.world);
         const tick = (timestamp: number) => {
             if (!this._halt) {
                 requestAnimationFrame(tick);
