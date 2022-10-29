@@ -7,12 +7,12 @@ const ctrlTglBtnElemId = 'ctrlTglBtn';
 const dbgTglBtnElemId = 'dbgTglBtn';
 
 async function main() {
-    const g = new GameApp(canvasElemId, 400, 400)
+    const g = new GameApp(canvasElemId, 640, 640)
         .setWorldSize(128, 128)
-        .generateWorld('')
-        .setCellRenderSize(2, 2)
+        .generateWorld(0.42141786048107965)
+        .setCellRenderSize(6, 6)
         .showDebug()
-        .showCtrl(120);
+        .showCtrl(false, 120);
     document.getElementById(runBtnElemId)?.addEventListener('click', () => {
         g.run();
     });
