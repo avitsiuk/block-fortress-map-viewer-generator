@@ -6,8 +6,11 @@ type TControlIdentifier = 'resetPosition' | 'scrollUp' | 'scrollDown' | 'scrollL
 
 type TControlsMap = {
     [key in TControlIdentifier]: {
+        /** 0- disabled; 1- press; 2- hold */
+        mode: 0 | 1 | 2;
         isOn: boolean,
-        keys: string[]
+        keys: string[],
+        presses?: number,
     }
 }
 
@@ -35,20 +38,20 @@ export class GameApp {
     private ctrlInfoPos: IPosition = { x: 0, y: 0 };
 
     private ctrl: TControlsMap = {
-        resetPosition: { isOn: false, keys: ['f', 'F'] },
-        zoomIn: { isOn: false, keys: ['e', 'E'] },
-        zoomOut: { isOn: false, keys: ['q', 'Q'] },
-        scrollUp: { isOn: false, keys: ['w', 'W'] },
-        scrollLeft: { isOn: false, keys: ['a', 'A'] },
-        scrollDown: { isOn: false, keys: ['s', 'S'] },
-        scrollRight: { isOn: false, keys: ['d', 'D'] },
-        'panX+': { isOn: false, keys: ['ArrowRight'] },
-        'panX-': { isOn: false, keys: ['ArrowLeft'] },
-        'panY+': { isOn: false, keys: ['ArrowDown'] },
-        'panY-': { isOn: false, keys: ['ArrowUp'] },
-        'noiseRes+': { isOn: false, keys: ['x', 'X'] },
-        'noiseRes-': { isOn: false, keys: ['z', 'Z'] },
-        randSeed: { isOn: false, keys: ['r', 'R'] },
+        resetPosition: { mode: 1, isOn: false, keys: ['f', 'F'] },
+        zoomIn: { mode: 1, isOn: false, keys: ['e', 'E'] },
+        zoomOut: { mode: 1, isOn: false, keys: ['q', 'Q'] },
+        scrollUp: { mode: 2, isOn: false, keys: ['w', 'W'] },
+        scrollLeft: { mode: 2, isOn: false, keys: ['a', 'A'] },
+        scrollDown: { mode: 2, isOn: false, keys: ['s', 'S'] },
+        scrollRight: { mode: 2, isOn: false, keys: ['d', 'D'] },
+        'panX+': { mode: 2, isOn: false, keys: ['ArrowRight'] },
+        'panX-': { mode: 2, isOn: false, keys: ['ArrowLeft'] },
+        'panY+': { mode: 2, isOn: false, keys: ['ArrowDown'] },
+        'panY-': { mode: 2, isOn: false, keys: ['ArrowUp'] },
+        'noiseRes+': { mode: 2, isOn: false, keys: ['x', 'X'] },
+        'noiseRes-': { mode: 2, isOn: false, keys: ['z', 'Z'] },
+        randSeed: { mode: 1, isOn: false, keys: ['r', 'R'] },
     };
 
     private ctlList: TControlIdentifier[] = Object.keys(this.ctrl) as TControlIdentifier[];
@@ -68,16 +71,34 @@ export class GameApp {
         this.ctx = this.canvas.getContext('2d')!;
         this.ctx.scale(scale, scale);
         this._world = new World(0, 0);
+        document.addEventListener('keypress', (e) => {
+            this.ctlList.forEach((ctlId) => {
+                if (
+                    this.ctrl[ctlId].mode === 1
+                    && this.ctrl[ctlId].keys.includes(e.key)
+                ) {
+                    this.ctrl[ctlId].presses = this.ctrl[ctlId].presses
+                        ? this.ctrl[ctlId].presses! + 1
+                        : 1;
+                }
+            });
+        });
         document.addEventListener('keydown', (e) => {
             this.ctlList.forEach((ctlId) => {
-                if (this.ctrl[ctlId].keys.includes(e.key)) {
+                if (
+                    this.ctrl[ctlId].mode === 2
+                    && this.ctrl[ctlId].keys.includes(e.key)
+                ) {
                     this.ctrl[ctlId].isOn = true;
                 }
             });
         });
         document.addEventListener('keyup', (e) => {
             this.ctlList.forEach((ctlId) => {
-                if (this.ctrl[ctlId].keys.includes(e.key)) {
+                if (
+                    this.ctrl[ctlId].mode === 2
+                    && this.ctrl[ctlId].keys.includes(e.key)
+                ) {
                     this.ctrl[ctlId].isOn = false;
                 }
             });
@@ -159,9 +180,9 @@ export class GameApp {
         }
     }
 
-    showCtrl(x: number = 0, y: number = 0) {
+    showCtrl(alsoShow: boolean = true, x: number = 0, y: number = 0) {
         this.ctrlInfoPos = { x, y };
-        this._renderCtrlInfo = true;
+        if (alsoShow) this._renderCtrlInfo = true;
         return this;
     }
 
@@ -211,22 +232,25 @@ export class GameApp {
         if (this.ctrl.scrollRight.isOn) {
             this.xOffset -= this.offsetStep;
         }
-        if (this.ctrl.zoomIn.isOn) {
-            this._world.incCellWidth(0.5);
-            this._world.incCellHeight(0.5);
+        if (this.ctrl.zoomIn.presses) {
+            this._world.incCellWidth(1);
+            this._world.incCellHeight(1);
+            this.ctrl.zoomIn.presses -= 1;
         }
-        if (this.ctrl.zoomOut.isOn) {
-            this._world.decCellWidth(0.5);
-            this._world.decCellHeight(0.5);
+        if (this.ctrl.zoomOut.presses) {
+            this._world.decCellWidth(1);
+            this._world.decCellHeight(1);
+            this.ctrl.zoomOut.presses -= 1;
         }
-        if (this.ctrl.resetPosition.isOn) {
-            this._world.setCellWidth(10);
-            this._world.setCellHeight(10);
+        if (this.ctrl.resetPosition.presses) {
+            this._world.setCellWidth(6);
+            this._world.setCellHeight(6);
             this.xOffset = 0;
             this.yOffset = 0;
             this._world.setPanX(0);
             this._world.setPanY(0);
             this._world.setNoiseRes(100);
+            this.ctrl.resetPosition.presses -= 1;
         }
         if (this.ctrl['panX+'].isOn) {
             this._world.incPanX();
@@ -246,14 +270,14 @@ export class GameApp {
         if (this.ctrl['noiseRes-'].isOn) {
             this._world.decNoiseRes();
         }
-        if (this.ctrl.randSeed.isOn) {
+        if (this.ctrl.randSeed.presses) {
             this._world.randSeed();
+            this.ctrl.randSeed.presses -= 1;
         }
     }
 
     run() {
         let pTimestamp = 0;
-        console.log(this.world);
         const tick = (timestamp: number) => {
             if (!this._halt) {
                 requestAnimationFrame(tick);
