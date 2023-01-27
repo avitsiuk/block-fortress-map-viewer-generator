@@ -193,13 +193,17 @@ export class World {
     render(ctx: CanvasRenderingContext2D, xOffset: number = 0, yOffset: number = 0) {
         this.generateNoise(this.seed, false);
         for (let row = 0; row < this.fieldRows; row += 1) {
-            const cellCenterY = Math.floor(
-                (this.cellHeightPx / 2) + (this.cellHeightPx * row),
-            ) + yOffset;
             for (let col = 0; col < this.fieldCols; col += 1) {
+                const cellIsoCol = this.fieldRows - 1 + col - row;
+                const cellIsoRow = col + row;
+
                 const cellCenterX = Math.floor(
-                    (this.cellWidthPx / 2) + (this.cellWidthPx * col),
+                    (this.cellWidthPx / 2) + ((this.cellWidthPx / 2) * cellIsoCol),
                 ) + xOffset;
+
+                const cellCenterY = Math.floor(
+                    (this.cellHeightPx / 2) + ((this.cellHeightPx / 2) * cellIsoRow),
+                ) + yOffset;
                 this.getCell(col, row).render(
                     ctx,
                     { x: cellCenterX, y: cellCenterY },
@@ -208,7 +212,7 @@ export class World {
                 );
             }
         }
-        this.drawBox(ctx, xOffset, yOffset);
+        // this.drawBox(ctx, xOffset, yOffset);
     }
 
     stringifyField(printBox: boolean = false): string {

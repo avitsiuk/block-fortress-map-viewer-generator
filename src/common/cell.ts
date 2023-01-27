@@ -9,12 +9,12 @@ const MAX_CELL_HEIGHT: number = 1000;
 const biomes: [number, TBiomeName, TBiomeFillStyle][] = [
     [0, 'null', 'black'],
     [1, 'abyss', 'black'],
-    [1, 'depth', '#00008b'],
-    [2, 'water', 'blue'],
-    [3, 'shore', 'yellow'],
-    [4, 'grass', 'green'],
-    [5, 'rocks', 'gray'],
-    [6, 'snow', 'white'],
+    [2, 'depth', '#00008b'],
+    [3, 'water', 'blue'],
+    [4, 'shore', 'yellow'],
+    [5, 'grass', 'green'],
+    [6, 'rocks', 'gray'],
+    [7, 'snow', 'white'],
 ];
 
 const biomeHeights: [number, number][] = [
@@ -74,12 +74,56 @@ export class WorldCell {
         cellHeightPx: number,
     ) {
         ctx.fillStyle = this.fillStyle;
-        ctx.fillRect(
+        ctx.strokeStyle = 'black';
+        // const pathFloor = new Path2D();
+        // pathFloor.moveTo(
+        //     center.x - Math.floor(cellWidthPx / 2),
+        //     center.y,
+        // );
+        // pathFloor.lineTo(
+        //     center.x,
+        //     center.y - Math.floor(cellHeightPx / 2),
+        // );
+        // pathFloor.lineTo(
+        //     center.x + Math.floor(cellWidthPx / 2),
+        //     center.y,
+        // );
+        // pathFloor.lineTo(
+        //     center.x,
+        //     center.y + Math.floor(cellHeightPx / 2),
+        // );
+        // pathFloor.closePath();
+        // // path.moveTo(center.x, center.y);
+        // // path.lineTo(center.x, center.y - Math.floor((this._height - 200) / 3));
+        // // ctx.fill(path);
+        // ctx.stroke(pathFloor);
+
+        const heightModifier = Math.max(200, Math.floor(this._height/2));
+        const path = new Path2D();
+        path.moveTo(
             center.x - Math.floor(cellWidthPx / 2),
-            center.y - Math.floor(cellHeightPx / 2),
-            cellWidthPx,
-            cellHeightPx,
+            center.y - heightModifier,
         );
+        path.lineTo(
+            center.x,
+            (center.y - Math.floor(cellHeightPx / 2)) - heightModifier,
+        );
+        path.lineTo(
+            center.x + Math.floor(cellWidthPx / 2),
+            center.y - heightModifier,
+        );
+        path.lineTo(
+            center.x,
+            (center.y + Math.floor(cellHeightPx / 2)) - heightModifier,
+        );
+        path.closePath();
+        ctx.fill(path);
+        // ctx.fillRect(
+        //     center.x - Math.floor(cellWidthPx / 2),
+        //     center.y - Math.floor(cellHeightPx / 2),
+        //     cellWidthPx,
+        //     cellHeightPx,
+        // );
     }
 }
 

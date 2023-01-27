@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Test project",
   "scripts": {
-    "dev": "moleculer-runner --repl --hot services/**/*.service.js",
+    "build": "webpack --config webpack.config.js",
+    "dev": "moleculer-runner --hot services/**/*.service.js",
     "start": "moleculer-runner",
     "cli": "moleculer connect ",
     "ci": "jest --watch",
     "test": "jest --coverage",
-    "build": "webpack --config webpack.config.js",
     "lint": "eslint . --ext .js,.ts"
   },
   "keywords": [

@@ -27,11 +27,11 @@ export class GameApp {
 
     private _renderCtrlInfo: boolean = false;
 
-    private xOffset: number = 0;
+    xOffset: number = 0;
 
-    private yOffset: number = 0;
+    yOffset: number = 0;
 
-    private offsetStep: number = 2;
+    private offsetStep: number = 6;
 
     private debugInfoPos: IPosition = { x: 0, y: 0 };
 
