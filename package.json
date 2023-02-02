@@ -45,13 +45,5 @@
   },
   "engines": {
     "node": ">= 12.x.x"
-  },
-  "jest": {
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "rootDir": "./services",
-    "roots": [
-      "../test"
-    ]
   }
 }
