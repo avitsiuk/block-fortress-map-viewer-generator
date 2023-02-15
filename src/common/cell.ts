@@ -29,6 +29,8 @@ const biomeHeights: [number, number][] = [
 ];
 
 export class WorldCell {
+    private _defaultCellSprite: HTMLImageElement = new Image(32, 16);
+
     private _height: number;
 
     private _biomeId: number;
@@ -42,6 +44,7 @@ export class WorldCell {
     }
 
     constructor(cellHeight: number) {
+        this._defaultCellSprite.src = './assets/tiles/tile_grass.png';
         this._height = Math.ceil(Math.min(cellHeight, WorldCell.maxHeight));
         this._biomeId = biomes[biomeHeights[biomeHeights.length - 1][1]][0];
         this._biomeName = biomes[biomeHeights[biomeHeights.length - 1][1]][1];
@@ -98,32 +101,39 @@ export class WorldCell {
         // // ctx.fill(path);
         // ctx.stroke(pathFloor);
 
-        const heightModifier = Math.max(200, Math.floor(this._height/2));
-        const path = new Path2D();
-        path.moveTo(
-            center.x - Math.floor(cellWidthPx / 2),
-            center.y - heightModifier,
-        );
-        path.lineTo(
-            center.x,
-            (center.y - Math.floor(cellHeightPx / 2)) - heightModifier,
-        );
-        path.lineTo(
-            center.x + Math.floor(cellWidthPx / 2),
-            center.y - heightModifier,
-        );
-        path.lineTo(
-            center.x,
-            (center.y + Math.floor(cellHeightPx / 2)) - heightModifier,
-        );
-        path.closePath();
-        ctx.fill(path);
+        // const heightModifier = Math.max(200, Math.floor(this._height / 2));
+        // const path = new Path2D();
+        // path.moveTo(
+        //     center.x - Math.floor(cellWidthPx / 2),
+        //     center.y - heightModifier,
+        // );
+        // path.lineTo(
+        //     center.x,
+        //     (center.y - Math.floor(cellHeightPx / 2)) - heightModifier,
+        // );
+        // path.lineTo(
+        //     center.x + Math.floor(cellWidthPx / 2),
+        //     center.y - heightModifier,
+        // );
+        // path.lineTo(
+        //     center.x,
+        //     (center.y + Math.floor(cellHeightPx / 2)) - heightModifier,
+        // );
+        // path.closePath();
+        // ctx.fill(path);
         // ctx.fillRect(
         //     center.x - Math.floor(cellWidthPx / 2),
         //     center.y - Math.floor(cellHeightPx / 2),
         //     cellWidthPx,
         //     cellHeightPx,
         // );
+        ctx.drawImage(
+            this._defaultCellSprite,
+            center.x - Math.floor(cellWidthPx / 2),
+            center.y - Math.floor(cellHeightPx / 2),
+            cellWidthPx,
+            cellHeightPx * 2,
+        );
     }
 }
 

@@ -191,18 +191,18 @@ export class World {
     }
 
     render(ctx: CanvasRenderingContext2D, xOffset: number = 0, yOffset: number = 0) {
-        this.generateNoise(this.seed, false);
+        // this.generateNoise(this.seed, false);
         for (let row = 0; row < this.fieldRows; row += 1) {
             for (let col = 0; col < this.fieldCols; col += 1) {
                 const cellIsoCol = this.fieldRows - 1 + col - row;
                 const cellIsoRow = col + row;
 
                 const cellCenterX = Math.floor(
-                    (this.cellWidthPx / 2) + ((this.cellWidthPx / 2) * cellIsoCol),
+                    (this.cellWidthPx / 2) * (cellIsoCol + 1),
                 ) + xOffset;
 
                 const cellCenterY = Math.floor(
-                    (this.cellHeightPx / 2) + ((this.cellHeightPx / 2) * cellIsoRow),
+                    (this.cellHeightPx / 2) * (cellIsoRow + 1),
                 ) + yOffset;
                 this.getCell(col, row).render(
                     ctx,

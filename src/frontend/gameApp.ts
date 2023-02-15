@@ -233,12 +233,12 @@ export class GameApp {
             this.xOffset -= this.offsetStep;
         }
         if (this.ctrl.zoomIn.presses) {
-            this._world.incCellWidth(1);
+            this._world.incCellWidth(2);
             this._world.incCellHeight(1);
             this.ctrl.zoomIn.presses -= 1;
         }
         if (this.ctrl.zoomOut.presses) {
-            this._world.decCellWidth(1);
+            this._world.decCellWidth(2);
             this._world.decCellHeight(1);
             this.ctrl.zoomOut.presses -= 1;
         }

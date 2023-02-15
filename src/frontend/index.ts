@@ -8,13 +8,13 @@ const dbgTglBtnElemId = 'dbgTglBtn';
 
 async function main() {
     const game = new GameApp(canvasElemId, 1500, 900)
-        .setWorldSize(128, 128)
+        .setWorldSize(50, 40)
         .generateWorld(0.42141786048107965)
-        .setCellRenderSize(10, 5)
+        .setCellRenderSize(32, 16)
         .showDebug()
         .showCtrl(false, 120);
-    game.xOffset = 50;
-    game.yOffset = 400;
+    game.xOffset = 0;
+    game.yOffset = 0;
     document.getElementById(runBtnElemId)?.addEventListener('click', () => {
         game.run();
     });
