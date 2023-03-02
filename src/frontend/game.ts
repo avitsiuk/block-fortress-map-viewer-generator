@@ -14,7 +14,7 @@ type TControlsMap = {
     }
 }
 
-export class GameApp {
+export class Game {
     private _world: World;
 
     private canvas: HTMLCanvasElement;
@@ -301,4 +301,4 @@ export class GameApp {
     }
 }
 
-export default GameApp;
+export default Game;
