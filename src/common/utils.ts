@@ -1,31 +1,21 @@
 import type {
     IPoint,
     IPointSafe,
-    IDim,
-    IDimSafe,
 } from './types';
 
-export function pointSafe(pos: IPoint): IPointSafe {
+export function pointSafe(pos: IPoint, minValue: number = 0): IPointSafe {
     return {
-        x: typeof pos.x === 'number' && pos.x > 0 ? pos.x : 0,
-        y: typeof pos.y === 'number' && pos.y > 0 ? pos.y : 0,
-        z: typeof pos.z === 'number' && pos.z > 0 ? pos.z : 0,
+        x: typeof pos.x === 'number' && pos.x > minValue ? pos.x : minValue,
+        y: typeof pos.y === 'number' && pos.y > minValue ? pos.y : minValue,
+        z: typeof pos.z === 'number' && pos.z > minValue ? pos.z : minValue,
     };
 }
 
-export function dimSafe(dim: IDim): IDimSafe {
-    return {
-        x: typeof dim.x === 'number' && dim.x > 1 ? dim.x : 1,
-        y: typeof dim.y === 'number' && dim.y > 1 ? dim.y : 1,
-        z: typeof dim.z === 'number' && dim.z > 1 ? dim.z : 1,
-    };
-}
-
-export function pointToIdx(pos: IPointSafe, dim: IDimSafe): number {
+export function pointToIdx(pos: IPointSafe, dim: IPointSafe): number {
     return (pos.y * dim.x + pos.x) + (dim.x * dim.y * pos.z);
 }
 
-export function idxToPoint(idx: number, dim: IDimSafe): IPointSafe {
+export function idxToPoint(idx: number, dim: IPointSafe): IPointSafe {
     return {
         x: idx % dim.x,
         y: Math.floor(idx / dim.x) % dim.y,
