@@ -78,6 +78,21 @@ export class Game {
     setWorldSize(dims: IPoint) {
         this._world.setFieldDims(dims);
         this._world.initField();
+
+        // const p1 = { x: 1, y: 0, z: 1 };
+        // const p2 = { x: 0, y: 1, z: 0 };
+        // const subOrigin = {
+        //     x: Math.min(p1.x, p2.x),
+        //     y: Math.min(p1.y, p2.y),
+        //     z: Math.min(p1.z, p2.z),
+        // };
+        // const subDims = {
+        //     x: (Math.max(p1.x, p2.x) - subOrigin.x) + 1,
+        //     y: (Math.max(p1.y, p2.y) - subOrigin.y) + 1,
+        //     z: (Math.max(p1.z, p2.z) - subOrigin.z) + 1,
+        // };
+        // console.log(subOrigin);
+        // console.log(subDims);
         return this;
     }
 
@@ -158,6 +173,7 @@ export class Game {
             this.applyControls();
             this.renderer.clearCanvas();
             this.renderer.renderWorld(this.world);
+            this.renderer.renderGrid();
             // ==================
             this.renderer.renderDebugInfo(debugInfo);
             this.renderer.renderCtrlInfo(this._ctrl);

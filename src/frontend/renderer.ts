@@ -120,17 +120,9 @@ export default class Renderer {
         }
     }
 
-    renderGrid() {
-        this.ctx.strokeStyle = 'black';
-        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.moveTo(0, 0);
-        this.ctx.lineTo(this.canvas.width, this.canvas.height);
-        this.ctx.moveTo(this.canvas.width, 0);
-        this.ctx.lineTo(0, this.canvas.height);
-        this.ctx.stroke();
-    }
-
     renderWorld(world: World): void {
+        // const i = 0x29;
+        // console.log(`${i}: [${JSON.stringify(idxToPoint(i, { x: 8, y: 8, z: 0 }))}]`);
         const zCorrection = this.cellDims.y * (world.fieldDims.z - 1);
         const worldRenderBox = {
             x: ((world.fieldDims.x + world.fieldDims.y) * this.cellDims.x) / 2,
@@ -261,5 +253,17 @@ export default class Renderer {
             const newY = this.ctrlInfoPos.y + (lineHeightPx * (i + 1) - 3);
             this.ctx.fillText(text, this.ctrlInfoPos.x, newY, lineWidthPx);
         }
+    }
+
+    renderGrid() {
+        this.ctx.strokeStyle = 'red';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.strokeStyle = 'black';
+        this.ctx.moveTo(0, Math.floor(this.canvas.height / 2));
+        this.ctx.lineTo(this.canvas.width, Math.floor(this.canvas.height / 2));
+        this.ctx.moveTo(Math.floor(this.canvas.width / 2), 0);
+        this.ctx.lineTo(Math.floor(this.canvas.width / 2), this.canvas.height);
+        this.ctx.stroke();
     }
 }

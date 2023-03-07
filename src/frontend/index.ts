@@ -10,7 +10,7 @@ async function main() {
     const canvasWidthPx = 1000;
     const canvasHeightPx = 600;
     const game = new Game(canvasElemId, { x: canvasWidthPx, y: canvasHeightPx })
-        .setWorldSize({ x: 10, y: 10, z: 5 })
+        .setWorldSize({ x: 10, y: 10, z: 10 })
         .showDebug({ x: 0, y: canvasHeightPx - 60 })
         .showCtrl({ x: 120, y: canvasHeightPx - 60 });
     document.getElementById(runBtnElemId)?.addEventListener('click', () => {
