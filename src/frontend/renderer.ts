@@ -272,6 +272,7 @@ export default class Renderer {
         }
     }
 
+    // =========================================================================
     renderGrid(): void {
         this.ctx.lineWidth = 1;
         this.ctx.globalAlpha = 1;

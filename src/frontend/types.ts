@@ -1,8 +1,7 @@
 export interface IDebugInfo {
     t: number,
-    tDelta: number,
     fps: number,
-    [key: string]: number,
+    [key: string]: number | string,
 }
 
 export type TControlIdentifier = 'resetPosition'
