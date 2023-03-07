@@ -14,7 +14,9 @@ export class Game {
 
     private _renderer: Renderer;
 
-    private _halt: boolean;
+    private _isRunning: boolean = false;
+
+    private _doHalt: boolean = false;
 
     private _ctrl: TControlsMap = {
         resetPosition: { mode: 1, isOn: false, keys: ['f', 'F'] },
@@ -35,11 +37,12 @@ export class Game {
             throw new Error(`Element "${canvasElemId}" is not a canvas.`);
         }
 
-        this._renderer = new Renderer(canvasElem, customCanvasDims);
-
         this._world = new World();
 
-        this._halt = false;
+        this._renderer = new Renderer(canvasElem, customCanvasDims)
+            .precomputeValues(this._world);
+
+        this._renderer.renderGrid();
 
         document.addEventListener('keypress', (e) => {
             this.ctlList.forEach((ctlId) => {
@@ -75,9 +78,18 @@ export class Game {
         });
     }
 
+    get world(): World {
+        return this._world;
+    }
+
+    get renderer(): Renderer {
+        return this._renderer;
+    }
+
     setWorldSize(dims: IPoint) {
         this._world.setFieldDims(dims);
         this._world.initField();
+        this._renderer.precomputeValues(this._world);
 
         // const p1 = { x: 1, y: 0, z: 1 };
         // const p2 = { x: 0, y: 1, z: 0 };
@@ -96,94 +108,91 @@ export class Game {
         return this;
     }
 
-    get world(): World {
-        return this._world;
-    }
-
-    get renderer(): Renderer {
-        return this._renderer;
-    }
-
     showDebug(pos?: IPoint) {
-        this.renderer.showDebug(pos);
+        this._renderer.showDebug(pos);
         return this;
     }
 
     hideDebug() {
-        this.renderer.hideDebug();
+        this._renderer.hideDebug();
         return this;
     }
 
     toggleDebug() {
-        this.renderer.toggleDebug();
+        this._renderer.toggleDebug();
         return this;
     }
 
     showCtrl(pos?: IPoint) {
-        this.renderer.showCtrl(pos);
+        this._renderer.showCtrl(pos);
         return this;
     }
 
     hideCtrl() {
-        this.renderer.hideCtrl();
+        this._renderer.hideCtrl();
         return this;
     }
 
     toggleCtrl() {
-        this.renderer.toggleCtrl();
+        this._renderer.toggleCtrl();
         return this;
     }
 
     applyControls() {
         if (this._ctrl.scrollDown!.isOn) {
-            this.renderer.renderOffsetYDec();
+            this._renderer.renderOffsetYDec();
         }
         if (this._ctrl.scrollUp!.isOn) {
-            this.renderer.renderOffsetYInc();
+            this._renderer.renderOffsetYInc();
         }
         if (this._ctrl.scrollLeft!.isOn) {
-            this.renderer.renderOffsetXInc();
+            this._renderer.renderOffsetXInc();
         }
         if (this._ctrl.scrollRight!.isOn) {
-            this.renderer.renderOffsetXDec();
+            this._renderer.renderOffsetXDec();
         }
         if (this._ctrl.resetPosition!.presses) {
-            this.renderer.setRenderOffset();
+            this._renderer.setRenderOffset();
             this._ctrl.resetPosition!.presses -= 1;
         }
     }
 
     run() {
+        if (this._isRunning) return;
+        this._isRunning = true;
         let pTimestamp = 0;
         const tick = (timestamp: number) => {
-            if (!this._halt) {
-                requestAnimationFrame(tick);
-            } else {
-                this._halt = false;
+            if (this._doHalt) {
+                this._doHalt = false;
+                this._isRunning = false;
+                return;
             }
+            requestAnimationFrame(tick);
             const tDelta = Math.floor((timestamp - pTimestamp) * 1000) / 1000;
             const debugInfo: IDebugInfo = {
                 t: timestamp,
                 tDelta,
                 fps: Math.round(1000 / tDelta),
-                canvasW: this.renderer.canvasWidthPx,
-                canvasH: this.renderer.canvasHeightPx,
+                canvasW: this._renderer.canvasWidthPx,
+                canvasH: this._renderer.canvasHeightPx,
             };
             debugInfo.fps = Math.round(1000 / tDelta);
             this.applyControls();
-            this.renderer.clearCanvas();
-            this.renderer.renderWorld(this.world);
-            this.renderer.renderGrid();
+            this._renderer.clearCanvas();
+            this._renderer.renderWorld(this._world);
+            this._renderer.renderGrid();
             // ==================
-            this.renderer.renderDebugInfo(debugInfo);
-            this.renderer.renderCtrlInfo(this._ctrl);
+            this._renderer.renderDebugInfo(debugInfo);
+            this._renderer.renderCtrlInfo(this._ctrl);
             pTimestamp = timestamp;
         };
         requestAnimationFrame(tick);
     }
 
     halt() {
-        this._halt = true;
+        if (this._isRunning) {
+            this._doHalt = true;
+        }
     }
 }
 

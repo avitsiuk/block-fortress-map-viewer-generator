@@ -41,6 +41,18 @@ export default class Renderer {
         y: terrains.size.y / 2,
     };
 
+    private precomputedValues = {
+        zCorrection: 0,
+        worldRenderBox: {
+            x: 0,
+            y: 0,
+        },
+        centerOffset: {
+            x: 0,
+            y: 0,
+        },
+    };
+
     constructor(canvasElem: HTMLCanvasElement, customDims?: IPoint) {
         this.canvas = canvasElem;
         const scale = window.devicePixelRatio;
@@ -53,6 +65,7 @@ export default class Renderer {
         this.canvas.style.height = `${this.canvas.height}px`;
         this.ctx = this.canvas.getContext('2d')!;
         this.ctx.scale(scale, scale);
+        this.ctx.imageSmoothingEnabled = false;
     }
 
     get canvasWidthPx(): number {
@@ -65,6 +78,7 @@ export default class Renderer {
 
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        return this;
     }
 
     set renderOffsetChangeStep(n: number) {
@@ -77,31 +91,46 @@ export default class Renderer {
 
     renderOffsetXInc() {
         this.renderOffset.x += this._renderOffsetChangeStep;
+        return this;
     }
 
     renderOffsetXDec() {
         this.renderOffset.x -= this._renderOffsetChangeStep;
+        return this;
     }
 
     renderOffsetYInc() {
         this.renderOffset.y += this._renderOffsetChangeStep;
+        return this;
     }
 
     renderOffsetYDec() {
         this.renderOffset.y -= this._renderOffsetChangeStep;
+        return this;
     }
 
     setRenderOffset(newOffset: IPoint = { x: 0, y: 0, z: 0 }) {
-        this.renderOffset = {
-            x: newOffset.x,
-            y: newOffset.y || 0,
-            z: 0,
+        this.renderOffset = pointSafe(newOffset);
+        return this;
+    }
+
+    precomputeValues(world: World) {
+        this.precomputedValues.zCorrection = this.cellDims.y * (world.fieldDims.z - 1);
+        this.precomputedValues.worldRenderBox = {
+            x: ((world.fieldDims.x + world.fieldDims.y) * this.cellDims.x) / 2,
+            y: ((world.fieldDims.x + world.fieldDims.y) * this.cellDims.y) / 2
+                + this.precomputedValues.zCorrection + this.cellDims.y,
         };
+        this.precomputedValues.centerOffset = {
+            x: (this.canvas.width / 2) - (this.precomputedValues.worldRenderBox.x / 2),
+            y: (this.canvas.height / 2) - (this.precomputedValues.worldRenderBox.y / 2),
+        };
+        return this;
     }
 
     // =========================================================================
 
-    renderCell(cell: Cell, originPoint: IPointSafe, selected: boolean = false) {
+    renderCell(cell: Cell, originPoint: IPointSafe, selected: boolean = false): void {
         this.ctx.drawImage(
             terrains.images.grass,
             originPoint.x,
@@ -121,21 +150,9 @@ export default class Renderer {
     }
 
     renderWorld(world: World): void {
-        // const i = 0x29;
-        // console.log(`${i}: [${JSON.stringify(idxToPoint(i, { x: 8, y: 8, z: 0 }))}]`);
-        const zCorrection = this.cellDims.y * (world.fieldDims.z - 1);
-        const worldRenderBox = {
-            x: ((world.fieldDims.x + world.fieldDims.y) * this.cellDims.x) / 2,
-            y: ((world.fieldDims.x + world.fieldDims.y) * this.cellDims.y) / 2
-                + zCorrection,
-        };
-        const centerOffset = {
-            x: (this.canvas.width / 2) - (worldRenderBox.x / 2),
-            y: (this.canvas.height / 2) - (worldRenderBox.y / 2),
-        };
         const renderOriginPoint = {
-            x: centerOffset.x + this.renderOffset.x,
-            y: centerOffset.y + this.renderOffset.y,
+            x: this.precomputedValues.centerOffset.x + this.renderOffset.x,
+            y: this.precomputedValues.centerOffset.y + this.renderOffset.y,
         };
         for (let cellIdx = 0; cellIdx < world.fieldLen; cellIdx += 1) {
             const cellWorldCoords = idxToPoint(cellIdx, world.fieldDims);
@@ -145,7 +162,7 @@ export default class Renderer {
                 x: Math.floor((this.cellDims.x / 2) * cellIsoCol)
                     + renderOriginPoint.x,
                 y: Math.floor((this.cellDims.y / 2) * cellIsoRow)
-                    + renderOriginPoint.y + zCorrection,
+                    + renderOriginPoint.y + this.precomputedValues.zCorrection,
                 z: 0,
             };
 
@@ -160,8 +177,8 @@ export default class Renderer {
         this.ctx.strokeRect(
             renderOriginPoint.x,
             renderOriginPoint.y,
-            worldRenderBox.x,
-            worldRenderBox.y,
+            this.precomputedValues.worldRenderBox.x,
+            this.precomputedValues.worldRenderBox.y,
         );
     }
 
@@ -187,7 +204,7 @@ export default class Renderer {
         return this;
     }
 
-    renderDebugInfo(data: IDebugInfo) {
+    renderDebugInfo(data: IDebugInfo): void {
         if (!this.doRenderDebugInfo) return;
         const lineHeightPx = 12;
         const lineWidthPx = 120;
@@ -232,7 +249,7 @@ export default class Renderer {
         return this;
     }
 
-    renderCtrlInfo(ctrlMap: TControlsMap) {
+    renderCtrlInfo(ctrlMap: TControlsMap): void {
         if (!this.doRenderCtrlInfo) return;
         const lineHeightPx = 12;
         const lineWidthPx = 150;
@@ -255,11 +272,16 @@ export default class Renderer {
         }
     }
 
-    renderGrid() {
-        this.ctx.strokeStyle = 'red';
+    renderGrid(): void {
         this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.globalAlpha = 1;
         this.ctx.strokeStyle = 'black';
+
+        this.ctx.strokeRect(0, 0, 10, 10);
+        this.ctx.strokeRect(this.canvas.width - 10, 0, 10, 10);
+        this.ctx.strokeRect(this.canvas.width - 10, this.canvas.height - 10, 10, 10);
+        this.ctx.strokeRect(0, this.canvas.height - 10, 10, 10);
+
         this.ctx.moveTo(0, Math.floor(this.canvas.height / 2));
         this.ctx.lineTo(this.canvas.width, Math.floor(this.canvas.height / 2));
         this.ctx.moveTo(Math.floor(this.canvas.width / 2), 0);
