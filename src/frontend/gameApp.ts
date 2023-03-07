@@ -168,22 +168,25 @@ export class Game {
                 return;
             }
             requestAnimationFrame(tick);
+            this.applyControls();
+            this._renderer.clearCanvas();
+
+            const renderStart = new Date().getTime();
+            this._renderer.renderWorld(this._world);
+            const renderTimeMs = new Date().getTime() - renderStart;
+
+            // ==================
             const tDelta = Math.floor((timestamp - pTimestamp) * 1000) / 1000;
             const debugInfo: IDebugInfo = {
                 t: timestamp,
-                tDelta,
+                renderT: `${renderTimeMs} ms`,
                 fps: Math.round(1000 / tDelta),
                 canvasW: this._renderer.canvasWidthPx,
                 canvasH: this._renderer.canvasHeightPx,
             };
-            debugInfo.fps = Math.round(1000 / tDelta);
-            this.applyControls();
-            this._renderer.clearCanvas();
-            this._renderer.renderWorld(this._world);
-            this._renderer.renderGrid();
-            // ==================
             this._renderer.renderDebugInfo(debugInfo);
             this._renderer.renderCtrlInfo(this._ctrl);
+            this._renderer.renderGrid();
             pTimestamp = timestamp;
         };
         requestAnimationFrame(tick);
