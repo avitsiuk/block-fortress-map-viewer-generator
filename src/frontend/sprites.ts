@@ -1,4 +1,5 @@
 import {
+    IMiscSpritesCollection,
     ITerrainSpritesCollection,
 } from './types';
 
@@ -8,18 +9,27 @@ const terrainSpritesPx = {
     y: 32,
 };
 
-const terrains: ITerrainSpritesCollection = {
+// =============================================================================
+const terrainSprites: ITerrainSpritesCollection = {
     size: { x: terrainSpritesPx.x, y: terrainSpritesPx.y },
     images: {
-        '': new Image(terrainSpritesPx.x, terrainSpritesPx.y),
-        select: new Image(terrainSpritesPx.x, terrainSpritesPx.y),
-        grass: new Image(terrainSpritesPx.x, terrainSpritesPx.y),
+        '': null,
+        dirt: new Image(terrainSpritesPx.x, terrainSpritesPx.y),
     },
 };
+terrainSprites.images.dirt!.src = 'assets/tiles/tile_grass.png';
 
-terrains.images.grass.src = 'assets/tiles/tile_grass.png';
-terrains.images.select.src = 'assets/tiles/tile_select.png';
+// =============================================================================
+const miscSprites: IMiscSpritesCollection = {
+    size: { x: terrainSpritesPx.x, y: terrainSpritesPx.y },
+    images: {
+        select: new Image(terrainSpritesPx.x, terrainSpritesPx.y),
+    },
+};
+miscSprites.images.select.src = 'assets/tiles/tile_grass.png';
 
+// =============================================================================
 export {
-    terrains,
+    terrainSprites,
+    miscSprites,
 };

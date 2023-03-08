@@ -1,28 +1,28 @@
 import {
-    TCellType,
+    TTerrainType,
 } from './types';
 
 export class Cell {
-    private _type: TCellType;
+    private _terrain: TTerrainType;
 
-    constructor(type: TCellType = '') {
-        this._type = type;
+    constructor(type: TTerrainType = '') {
+        this._terrain = type;
     }
 
-    get type(): TCellType {
-        return this._type;
+    get type(): TTerrainType {
+        return this._terrain;
     }
 
-    set type(type: TCellType) {
-        this._type = type;
+    set type(type: TTerrainType) {
+        this._terrain = type;
     }
 
-    getType(): TCellType {
-        return this._type;
+    getType(): TTerrainType {
+        return this._terrain;
     }
 
-    setType(type: TCellType) {
-        this._type = type;
+    setType(type: TTerrainType) {
+        this._terrain = type;
         return this;
     }
 }

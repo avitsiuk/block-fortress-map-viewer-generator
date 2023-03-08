@@ -1,3 +1,7 @@
+import {
+    TTerrainType,
+} from '../common/types';
+
 export interface IDebugInfo {
     t: number,
     fps: number,
@@ -20,17 +24,21 @@ export type TControlsMap = {
     }
 }
 
-export interface ISpritesCollection {
+interface ISpritesCollection {
     size: {x: number, y: number};
     images: {
-        [key: string]: HTMLImageElement;
+        [key: string]: HTMLImageElement | null;
     }
 }
 
-export type TTerrainType = 'grass' | 'select' | '';
+export interface IMiscSpritesCollection extends ISpritesCollection {
+    images: {
+        select: HTMLImageElement;
+    }
+}
 
 export interface ITerrainSpritesCollection extends ISpritesCollection {
     images: {
-        [key in TTerrainType]: HTMLImageElement;
+        [key in TTerrainType]: HTMLImageElement | null;
     }
 }

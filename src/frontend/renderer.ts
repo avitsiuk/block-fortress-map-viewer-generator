@@ -11,13 +11,14 @@ import {
 import {
     pointSafe,
     idxToPoint,
+    getSubfield,
 } from '../common/utils';
 
 import Cell from '../common/cell';
 
 import World from '../common/world';
 
-import { terrains } from './sprites';
+import { miscSprites, terrainSprites } from './sprites';
 
 export default class Renderer {
     private canvas: HTMLCanvasElement;
@@ -37,8 +38,13 @@ export default class Renderer {
     private _renderOffsetChangeStep = 3;
 
     private cellDims = {
-        x: terrains.size.x,
-        y: terrains.size.y / 2,
+        x: terrainSprites.size.x,
+        y: terrainSprites.size.y / 2,
+    };
+
+    private renderedSubfield = {
+        origin: { x: 0, y: 0, z: 0 },
+        dims: { x: 1, y: 1, z: 1 },
     };
 
     private precomputedValues = {
@@ -51,6 +57,7 @@ export default class Renderer {
             x: 0,
             y: 0,
         },
+        renderedIdxArray: new Array<number>(0),
     };
 
     constructor(canvasElem: HTMLCanvasElement, customDims?: IPoint) {
@@ -128,35 +135,63 @@ export default class Renderer {
         return this;
     }
 
+    get subfield() {
+        return this.renderedSubfield;
+    }
+
+    setSubfield(origin: IPoint, dims: IPoint) {
+        this.renderedSubfield = {
+            origin: pointSafe(origin, 0),
+            dims: pointSafe(dims, 1),
+        };
+        this.precomputedValues.renderedIdxArray = [];
+        return this;
+    }
+
     // =========================================================================
 
     renderCell(cell: Cell, originPoint: IPointSafe, selected: boolean = false): void {
-        this.ctx.drawImage(
-            terrains.images.grass,
-            originPoint.x,
-            originPoint.y,
-            terrains.size.x,
-            terrains.size.y,
-        );
-        if (selected) {
+        if (terrainSprites.images[cell.type]) {
             this.ctx.drawImage(
-                terrains.images.select,
+                terrainSprites.images[cell.type]!,
                 originPoint.x,
                 originPoint.y,
-                terrains.size.x,
-                terrains.size.y,
+                terrainSprites.size.x,
+                terrainSprites.size.y,
+            );
+        }
+        if (selected) {
+            this.ctx.drawImage(
+                miscSprites.images.select,
+                originPoint.x,
+                originPoint.y,
+                miscSprites.size.x,
+                miscSprites.size.y,
             );
         }
     }
 
     renderWorld(world: World): void {
+        if (this.precomputedValues.renderedIdxArray.length <= 0) {
+            this.precomputedValues.renderedIdxArray = getSubfield(
+                {
+                    x: world.fieldDims.x,
+                    y: world.fieldDims.y,
+                    z: world.fieldDims.z,
+                },
+                this.renderedSubfield.origin,
+                this.renderedSubfield.dims,
+            );
+        }
         const renderOriginPoint = {
             x: this.precomputedValues.centerOffset.x + this.renderOffset.x,
             y: this.precomputedValues.centerOffset.y + this.renderOffset.y,
         };
-        for (let cellIdx = 0; cellIdx < world.fieldLen; cellIdx += 1) {
-            const cellWorldCoords = idxToPoint(cellIdx, world.fieldDims);
-            const cellIsoCol = world.fieldDims.y - 1 + cellWorldCoords.x - cellWorldCoords.y;
+        for (let i = 0; i < this.precomputedValues.renderedIdxArray.length; i += 1) {
+            const cellIdx = this.precomputedValues.renderedIdxArray[i];
+            const cellWorldCoords = idxToPoint(i, this.renderedSubfield.dims);
+            const cellIsoCol = this.renderedSubfield.dims.y
+                - 1 + cellWorldCoords.x - cellWorldCoords.y;
             const cellIsoRow = cellWorldCoords.x + cellWorldCoords.y;
             const cellOriginPoint: IPointSafe = {
                 x: Math.floor((this.cellDims.x / 2) * cellIsoCol)
@@ -172,14 +207,14 @@ export default class Renderer {
             this.renderCell(world.getCell(cellIdx), cellOriginPoint, selected);
         }
 
-        // TODO: remove this
-        this.ctx.strokeStyle = 'black';
-        this.ctx.strokeRect(
-            renderOriginPoint.x,
-            renderOriginPoint.y,
-            this.precomputedValues.worldRenderBox.x,
-            this.precomputedValues.worldRenderBox.y,
-        );
+        // // TODO: remove this
+        // this.ctx.strokeStyle = 'black';
+        // this.ctx.strokeRect(
+        //     renderOriginPoint.x,
+        //     renderOriginPoint.y,
+        //     this.precomputedValues.worldRenderBox.x,
+        //     this.precomputedValues.worldRenderBox.y,
+        // );
     }
 
     // =========================================================================

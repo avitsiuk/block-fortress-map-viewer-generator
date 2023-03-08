@@ -9,4 +9,4 @@ export interface IPointSafe extends IPoint {
     z: number;
 }
 
-export type TCellType = 'grass' | '';
+export type TTerrainType = '' | 'dirt';

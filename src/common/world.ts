@@ -1,7 +1,7 @@
 import {
     IPoint,
     IPointSafe,
-    TCellType,
+    TTerrainType,
 } from './types';
 import {
     pointSafe,
@@ -10,20 +10,18 @@ import Cell from './cell';
 
 export const defWorldDims: IPointSafe = { x: 1, y: 1, z: 1 };
 
-export const defCellType: TCellType = '';
-
-type TFieldType = Array<Cell>;
+export const defCellType: TTerrainType = 'dirt';
 
 export class World {
     private _fieldDims: IPointSafe = defWorldDims;
 
-    private _field: TFieldType = [];
+    private _field: Cell[] = [];
 
     seed: number;
 
     constructor(
         dims: IPoint = defWorldDims,
-        initCellType: TCellType = defCellType,
+        initCellType: TTerrainType = defCellType,
         seed: number = 0,
     ) {
         this.setFieldDims(dims);
@@ -44,14 +42,35 @@ export class World {
         return this._fieldDims;
     }
 
-    initField(initCellType: TCellType = defCellType) {
+    initField(initCellType: TTerrainType = defCellType) {
         this._field = [];
         this._field = new Array<Cell>(this._fieldDims.x * this._fieldDims.y * this._fieldDims.z)
             .fill(new Cell(initCellType));
         return this;
     }
 
-    clearField(initCellType: TCellType = defCellType) {
+    initFieldFromArray(initArray: Array<number>) {
+        const fieldLen = this._fieldDims.x * this._fieldDims.y * this._fieldDims.z;
+        if (initArray.length < fieldLen) {
+            throw new Error(`Initialization array too short. Expected ${fieldLen} elements but received ${initArray.length}.`);
+        }
+        this._field = new Array<Cell>(0);
+        for (let elemIdx = 0; elemIdx < fieldLen; elemIdx += 1) {
+            switch (initArray[elemIdx]) {
+                case 0:
+                    this._field.push(new Cell(''));
+                    break;
+                case 1:
+                    this._field.push(new Cell('dirt'));
+                    break;
+                default:
+                    break;
+            }
+        }
+        return this;
+    }
+
+    clearField(initCellType: TTerrainType = defCellType) {
         return this.initField(initCellType);
     }
 

@@ -8,6 +8,7 @@ import {
 } from './types';
 import World from '../common/world';
 import Renderer from './renderer';
+import { pointSafe } from '../common/utils';
 
 export class Game {
     private _world: World;
@@ -87,9 +88,14 @@ export class Game {
     }
 
     setWorldSize(dims: IPoint) {
-        this._world.setFieldDims(dims);
+        const _dims = pointSafe(dims, 1);
+        this._world.setFieldDims(_dims);
         this._world.initField();
         this._renderer.precomputeValues(this._world);
+        this._renderer.setSubfield(
+            { x: 0, y: 0, z: 0 },
+            _dims,
+        );
 
         // const p1 = { x: 1, y: 0, z: 1 };
         // const p2 = { x: 0, y: 1, z: 0 };
@@ -105,6 +111,20 @@ export class Game {
         // };
         // console.log(subOrigin);
         // console.log(subDims);
+        return this;
+    }
+
+    get renderedSubfield() {
+        return this._renderer.subfield;
+    }
+
+    setRenderedSubfield(origin: IPoint, dim: IPoint) {
+        this._renderer.setSubfield(origin, dim);
+        return this;
+    }
+
+    initFromArray(initArray: number[]) {
+        this._world.initFieldFromArray(initArray);
         return this;
     }
 
@@ -186,7 +206,7 @@ export class Game {
             };
             this._renderer.renderDebugInfo(debugInfo);
             this._renderer.renderCtrlInfo(this._ctrl);
-            this._renderer.renderGrid();
+            // this._renderer.renderGrid();
             pTimestamp = timestamp;
         };
         requestAnimationFrame(tick);
