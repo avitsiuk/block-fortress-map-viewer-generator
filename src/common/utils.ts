@@ -21,7 +21,6 @@ export function pointSafe(pos: IPoint, minValue?: number): IPointSafe {
 
 export function pointToIdx(p: IPointSafe, dim: IPointSafe): number {
     const result = (p.y * dim.x + p.x) + (dim.x * dim.y * p.z);
-    // console.log(`([${p.x};${p.y};${p.z}],[${dim.x};${dim.y};${dim.z}]) => [${result}]`);
     return result;
 }
 

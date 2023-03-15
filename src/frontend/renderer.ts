@@ -39,7 +39,8 @@ export default class Renderer {
 
     private cellDims = {
         x: terrainSprites.size.x,
-        y: terrainSprites.size.y / 2,
+        y: Math.floor(terrainSprites.size.x / 2),
+        z: terrainSprites.size.y - Math.floor(terrainSprites.size.x / 2),
     };
 
     private renderedSubfield = {
@@ -71,7 +72,7 @@ export default class Renderer {
         this.canvas.style.width = `${this.canvas.width}px`;
         this.canvas.style.height = `${this.canvas.height}px`;
         this.ctx = this.canvas.getContext('2d')!;
-        this.ctx.scale(scale, scale);
+        // this.ctx.scale(scale, scale);
         this.ctx.imageSmoothingEnabled = false;
     }
 
@@ -122,15 +123,15 @@ export default class Renderer {
     }
 
     precomputeValues(world: World) {
-        this.precomputedValues.zCorrection = this.cellDims.y * (world.fieldDims.z - 1);
+        this.precomputedValues.zCorrection = this.cellDims.z * (world.fieldDims.z - 1);
         this.precomputedValues.worldRenderBox = {
-            x: ((world.fieldDims.x + world.fieldDims.y) * this.cellDims.x) / 2,
-            y: ((world.fieldDims.x + world.fieldDims.y) * this.cellDims.y) / 2
-                + this.precomputedValues.zCorrection + this.cellDims.y,
+            x: Math.floor(((world.fieldDims.x + world.fieldDims.y) * this.cellDims.x) / 2),
+            y: Math.floor(((world.fieldDims.x + world.fieldDims.y) * this.cellDims.y) / 2
+                + this.precomputedValues.zCorrection + this.cellDims.z),
         };
         this.precomputedValues.centerOffset = {
-            x: (this.canvas.width / 2) - (this.precomputedValues.worldRenderBox.x / 2),
-            y: (this.canvas.height / 2) - (this.precomputedValues.worldRenderBox.y / 2),
+            x: Math.floor((this.canvas.width / 2) - (this.precomputedValues.worldRenderBox.x / 2)),
+            y: Math.floor((this.canvas.height / 2) - (this.precomputedValues.worldRenderBox.y / 2)),
         };
         return this;
     }
@@ -159,6 +160,15 @@ export default class Renderer {
                 terrainSprites.size.x,
                 terrainSprites.size.y,
             );
+            this.ctx.strokeStyle = 'black';
+            this.ctx.lineWidth = 1;
+            this.ctx.globalAlpha = 1;
+            this.ctx.strokeRect(
+                originPoint.x,
+                originPoint.y,
+                terrainSprites.size.x,
+                terrainSprites.size.y / 2,
+            );
         }
         if (selected) {
             this.ctx.drawImage(
@@ -169,6 +179,15 @@ export default class Renderer {
                 miscSprites.size.y,
             );
         }
+        // this.ctx.strokeStyle = 'black';
+        // this.ctx.lineWidth = 1;
+        // this.ctx.globalAlpha = 1;
+        // this.ctx.strokeRect(
+        //     originPoint.x,
+        //     originPoint.y,
+        //     terrainSprites.size.x,
+        //     terrainSprites.size.y / 2,
+        // );
     }
 
     renderWorld(world: World): void {
@@ -194,27 +213,27 @@ export default class Renderer {
                 - 1 + cellWorldCoords.x - cellWorldCoords.y;
             const cellIsoRow = cellWorldCoords.x + cellWorldCoords.y;
             const cellOriginPoint: IPointSafe = {
-                x: Math.floor((this.cellDims.x / 2) * cellIsoCol)
-                    + renderOriginPoint.x,
-                y: Math.floor((this.cellDims.y / 2) * cellIsoRow)
-                    + renderOriginPoint.y + this.precomputedValues.zCorrection,
+                x: Math.floor((this.cellDims.x / 2) * cellIsoCol
+                    + renderOriginPoint.x),
+                y: Math.floor((this.cellDims.y / 2) * cellIsoRow
+                    + renderOriginPoint.y + this.precomputedValues.zCorrection),
                 z: 0,
             };
 
             // applying elevation for z axis
-            cellOriginPoint.y -= this.cellDims.y * cellWorldCoords.z;
+            cellOriginPoint.y -= this.cellDims.z * cellWorldCoords.z;
             const selected: boolean = false;
             this.renderCell(world.getCell(cellIdx), cellOriginPoint, selected);
         }
 
-        // // TODO: remove this
-        // this.ctx.strokeStyle = 'black';
-        // this.ctx.strokeRect(
-        //     renderOriginPoint.x,
-        //     renderOriginPoint.y,
-        //     this.precomputedValues.worldRenderBox.x,
-        //     this.precomputedValues.worldRenderBox.y,
-        // );
+        // TODO: remove this
+        this.ctx.strokeStyle = 'black';
+        this.ctx.strokeRect(
+            renderOriginPoint.x,
+            renderOriginPoint.y,
+            this.precomputedValues.worldRenderBox.x,
+            this.precomputedValues.worldRenderBox.y,
+        );
     }
 
     // =========================================================================
@@ -313,15 +332,15 @@ export default class Renderer {
         this.ctx.globalAlpha = 1;
         this.ctx.strokeStyle = 'black';
 
-        this.ctx.strokeRect(0, 0, 10, 10);
-        this.ctx.strokeRect(this.canvas.width - 10, 0, 10, 10);
-        this.ctx.strokeRect(this.canvas.width - 10, this.canvas.height - 10, 10, 10);
-        this.ctx.strokeRect(0, this.canvas.height - 10, 10, 10);
+        this.ctx.strokeRect(0.5, 0.5, 10, 10);
+        this.ctx.strokeRect(this.canvas.width - 10.5, 0.5, 10, 10);
+        this.ctx.strokeRect(this.canvas.width - 10.5, this.canvas.height - 10.5, 10, 10);
+        this.ctx.strokeRect(0.5, this.canvas.height - 10.5, 10, 10);
 
-        this.ctx.moveTo(0, Math.floor(this.canvas.height / 2));
-        this.ctx.lineTo(this.canvas.width, Math.floor(this.canvas.height / 2));
-        this.ctx.moveTo(Math.floor(this.canvas.width / 2), 0);
-        this.ctx.lineTo(Math.floor(this.canvas.width / 2), this.canvas.height);
+        this.ctx.moveTo(0, Math.floor(this.canvas.height / 2) - 0.5);
+        this.ctx.lineTo(this.canvas.width, Math.floor(this.canvas.height / 2) - 0.5);
+        this.ctx.moveTo(Math.floor(this.canvas.width / 2) - 0.5, 0);
+        this.ctx.lineTo(Math.floor(this.canvas.width / 2) - 0.5, this.canvas.height - 0.5);
         this.ctx.stroke();
     }
 }

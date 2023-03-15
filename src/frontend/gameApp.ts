@@ -206,7 +206,7 @@ export class Game {
             };
             this._renderer.renderDebugInfo(debugInfo);
             this._renderer.renderCtrlInfo(this._ctrl);
-            // this._renderer.renderGrid();
+            this._renderer.renderGrid();
             pTimestamp = timestamp;
         };
         requestAnimationFrame(tick);
