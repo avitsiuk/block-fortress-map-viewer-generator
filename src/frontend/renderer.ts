@@ -63,7 +63,8 @@ export default class Renderer {
 
     constructor(canvasElem: HTMLCanvasElement, customDims?: IPoint) {
         this.canvas = canvasElem;
-        const scale = window.devicePixelRatio;
+        // const scale = window.devicePixelRatio;
+        const scale = 1;
         if (typeof customDims !== 'undefined') {
             const dims = pointSafe(customDims);
             this.canvas.width = Math.floor(dims.x * scale);
@@ -72,7 +73,7 @@ export default class Renderer {
         this.canvas.style.width = `${this.canvas.width}px`;
         this.canvas.style.height = `${this.canvas.height}px`;
         this.ctx = this.canvas.getContext('2d')!;
-        // this.ctx.scale(scale, scale);
+        this.ctx.scale(scale, scale);
         this.ctx.imageSmoothingEnabled = false;
     }
 
